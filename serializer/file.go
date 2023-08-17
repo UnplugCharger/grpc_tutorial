@@ -31,5 +31,15 @@ func ReadProtobufFromBinFile(filename string, message proto.Message) error {
 }
 
 func WriteProtobufToJsonFile(message proto.Message, filename string) error {
+	data, err := ProtobufToJSON(message)
+	if err != nil {
+		return fmt.Errorf("could not encode message: %v", err)
+	}
+
+	err = os.WriteFile(filename, []byte(data), 0644)
+	if err != nil {
+		return fmt.Errorf("could not write file: %v", err)
+	}
+
 	return nil
 }

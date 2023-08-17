@@ -12,7 +12,7 @@ func TestWriteProtobufToFile(t *testing.T) {
 	t.Parallel()
 
 	binaryFile := "../tmp/test.bin"
-	//jsonFile := "../test/test.json"
+	jsonFile := "../tmp/test.json"
 
 	laptop1 := sample.NewLaptop()
 	err := WriteProtobufToBinFile(laptop1, binaryFile)
@@ -23,21 +23,7 @@ func TestWriteProtobufToFile(t *testing.T) {
 	require.NoError(t, err)
 
 	require.True(t, proto.Equal(laptop1, laptop2))
-}
 
-func TestReadProtobufFromBinFile(t *testing.T) {
-	t.Parallel()
-
-	binaryFile := "../tmp/test.bin"
-	//jsonFile := "../test/test.json"
-
-	laptop1 := sample.NewLaptop()
-	err := WriteProtobufToBinFile(laptop1, binaryFile)
+	err = WriteProtobufToJsonFile(laptop1, jsonFile)
 	require.NoError(t, err)
-
-	laptop2 := &pb.Laptop{}
-	err = ReadProtobufFromBinFile(binaryFile, laptop2)
-	require.NoError(t, err)
-
-	require.True(t, proto.Equal(laptop1, laptop2))
 }
