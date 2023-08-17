@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package grpc_tutorial;
+
+option go_package = "pb/";
+
+import "memory_message.proto";
+
+message CPU {
+  string brand = 1;
+  string model = 2;
+  string name = 3;
+  double  minGhz = 4;
+  double  maxGhz = 5;
+  uint32 numberOfCores = 6;
+  double  threads = 7;
+  double  physicalCores = 8;
+  double  efficiency = 9;
+
+}
+
+message GPU {
+  string brand = 1;
+  string model = 2;
+  string name = 3;
+  double  minGhz = 4;
+  double  maxGhz = 5;
+  uint32 numberOfCores = 6;
+  double  threads = 7;
+  double  physicalCores = 8;
+  double  efficiency = 9;
+  Memory memory =  10;
+}
