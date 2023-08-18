@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"github.com/UnplugCharger/grpc_tutorial/pb"
@@ -10,13 +11,16 @@ import (
 	"log"
 )
 
+const maxImageSize = 1 << 20
+
 type LaptopServer struct {
-	Store LaptopStore
 	pb.UnimplementedLaptopServiceServer
+	LaptopStore LaptopStore
+	ImageSore   ImageStore
 }
 
-func NewLaptopServer(store LaptopStore) *LaptopServer {
-	return &LaptopServer{store, pb.UnimplementedLaptopServiceServer{}}
+func NewLaptopServer(laptopStore LaptopStore, imageStore ImageStore) *LaptopServer {
+	return &LaptopServer{pb.UnimplementedLaptopServiceServer{}, laptopStore, imageStore}
 
 }
 
@@ -53,7 +57,7 @@ func (server *LaptopServer) CreateLaptop(ctx context.Context, in *pb.CreateLapto
 	}
 
 	// save the laptop to the store
-	err := server.Store.Save(laptop)
+	err := server.LaptopStore.Save(laptop)
 	if err != nil {
 		code := codes.Internal
 		if errors.Is(err, ErrAlreadyExists) {
@@ -76,7 +80,7 @@ func (server *LaptopServer) SearchLaptop(req *pb.SearchLaptopRequest, stream pb.
 	filter := req.GetFilter()
 	log.Printf("received a search-laptop request with filter: %v", filter)
 
-	err := server.Store.Search(stream.Context(), filter, func(laptop *pb.Laptop) error {
+	err := server.LaptopStore.Search(stream.Context(), filter, func(laptop *pb.Laptop) error {
 		res := &pb.SearchLaptopResponse{
 			Laptop: laptop,
 		}
@@ -94,4 +98,66 @@ func (server *LaptopServer) SearchLaptop(req *pb.SearchLaptopRequest, stream pb.
 	}
 
 	return nil
+}
+
+func (server *LaptopServer) UploadImage(stream pb.LaptopService_UploadImageServer) error {
+	log.Print("received an upload-image request")
+
+	req, err := stream.Recv()
+	if err != nil {
+		return status.Errorf(codes.Unknown, "cannot receive image info: %v", err)
+	}
+
+	laptopID := req.GetImageInfo().GetLaptopId()
+	imageType := req.GetImageInfo().GetImageType()
+	log.Printf("received an upload-image request for laptop %s with image type %s", laptopID, imageType)
+
+	laptop, err := server.LaptopStore.Find(laptopID)
+	if err != nil {
+		return status.Errorf(codes.Internal, "cannot find laptop: %v", err)
+	}
+
+	if laptop == nil {
+		return status.Errorf(codes.InvalidArgument, "laptop %s doesn't exist", laptopID)
+	}
+
+	imageData := bytes.Buffer{}
+	imageSize := 0
+
+	for {
+		log.Print("waiting to receive more data")
+		req, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				log.Print("client cancelled streaming")
+				return status.Errorf(codes.Canceled, "client cancelled streaming")
+			}
+			log.Printf("cannot receive chunk data: %v", err)
+			return status.Errorf(codes.Unknown, "cannot receive chunk data: %v", err)
+		}
+
+		chunk := req.GetChunkData()
+		size := len(chunk)
+		imageSize += size
+		log.Printf("received a chunk with size: %d", size)
+		if imageSize > maxImageSize {
+			return status.Errorf(codes.InvalidArgument, "image is too large: %d > %d", imageSize, maxImageSize)
+		}
+
+		_, err = imageData.Write(chunk)
+		if err != nil {
+			return status.Errorf(codes.Internal, "cannot write chunk data: %v", err)
+		}
+
+		imageID, err := server.ImageSore.Save(laptopID, imageType, imageData.Bytes())
+		if err != nil {
+			return status.Errorf(codes.Internal, "cannot save image to the store: %v", err)
+		}
+
+		res := &pb.UploadImageResponse{
+			ImageId: imageID,
+			Size:    uint32(imageSize),
+		}
+
+	}
 }

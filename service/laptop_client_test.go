@@ -15,7 +15,7 @@ import (
 func TestClientCreateLaptop(t *testing.T) {
 	t.Parallel()
 	store := NewInMemoryLaptopStore()
-	laptopServer, address := startTestLaptopServer(t, store)
+	address := startTestLaptopServer(t, store, nil)
 	laptopClient := newTestLaptopClient(t, address)
 
 	laptop := sample.NewLaptop()
@@ -31,7 +31,7 @@ func TestClientCreateLaptop(t *testing.T) {
 	require.Equal(t, expectedId, res.Id)
 
 	// Check if the laptop is saved to the store.
-	other, err := laptopServer.Store.Find(res.Id)
+	other, err := store.Find(res.Id)
 	require.NoError(t, err)
 	require.NotNil(t, other)
 
@@ -75,7 +75,7 @@ func TestClientSearchLaptop(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	_, address := startTestLaptopServer(t, store)
+	address := startTestLaptopServer(t, store, nil)
 	laptopClient := newTestLaptopClient(t, address)
 
 	req := &pb.SearchLaptopRequest{Filter: filter}
@@ -95,8 +95,8 @@ func TestClientSearchLaptop(t *testing.T) {
 
 }
 
-func startTestLaptopServer(t *testing.T, store LaptopStore) (*LaptopServer, string) {
-	laptopServer := NewLaptopServer(NewInMemoryLaptopStore())
+func startTestLaptopServer(t *testing.T, laptopStore LaptopStore, imageSore ImageStore) string {
+	laptopServer := NewLaptopServer(laptopStore, imageSore)
 	grpcServer := grpc.NewServer()
 	pb.RegisterLaptopServiceServer(grpcServer, laptopServer)
 
@@ -105,7 +105,7 @@ func startTestLaptopServer(t *testing.T, store LaptopStore) (*LaptopServer, stri
 
 	go grpcServer.Serve(listener)
 
-	return laptopServer, listener.Addr().String()
+	return listener.Addr().String()
 
 }
 

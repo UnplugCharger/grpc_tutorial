@@ -5,17 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e85c60e-7593-4a8e-bc60-d00f4132fa47" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pb/laptop_service.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pb/laptop_service.pb.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pb/laptop_service_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pb/laptop_service_grpc.pb.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proto/keyboard_message.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/keyboard_message.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proto/processor_message.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/processor_message.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proto/screen_message.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/screen_message.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proto/storage_message.proto" beforeDir="false" afterPath="$PROJECT_DIR$/proto/storage_message.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serializer/file.go" beforeDir="false" afterPath="$PROJECT_DIR$/serializer/file.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/laptop_client_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/laptop_client_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/laptop_server.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/laptop_server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/service/laptop_store.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/laptop_store.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/laptop_server_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/laptop_server_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +67,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.fileTypes&quot;
   }
 }</component>
-  <component name="RunManager" selected="Go Test.TestClientSearchLaptop in github.com/UnplugCharger/grpc_tutorial/service">
+  <component name="RunManager" selected="Go Test.go test github.com/UnplugCharger/grpc_tutorial/service">
     <configuration name="TestClientCreateLaptop in github.com/UnplugCharger/grpc_tutorial/service" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="grpc_tutorial" />
       <working_directory value="$PROJECT_DIR$/service" />
@@ -121,10 +117,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Test.TestClientSearchLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
-        <item itemvalue="Go Test.TestClientCreateLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
-        <item itemvalue="Go Test.TestLaptopServer_CreateLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
         <item itemvalue="Go Test.go test github.com/UnplugCharger/grpc_tutorial/service" />
+        <item itemvalue="Go Test.TestClientCreateLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
+        <item itemvalue="Go Test.TestClientSearchLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
+        <item itemvalue="Go Test.TestLaptopServer_CreateLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
       </list>
     </recent_temporary>
   </component>
