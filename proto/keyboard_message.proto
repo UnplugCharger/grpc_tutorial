@@ -5,15 +5,14 @@ package grpc_tutorial;
 option go_package = "pb/";
 
 message Keyboard {
-    enum Layout {
-        UNKNOWN = 0;
-        QWERTY = 3;
-        AZERTY = 1;
-        QWERTZ = 2;
+  enum Layout {
+    UNKNOWN = 0;
+    QWERTY = 3;
+    AZERTY = 1;
+    QWERTZ = 2;
+  }
 
-    }
-
-    Layout layout = 1;
-    string model = 2;
-    bool backlit = 3;
+  Layout layout = 1;
+  string model = 2;
+  bool backlit = 3;
 }

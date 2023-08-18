@@ -6,8 +6,7 @@ option go_package = "pb/";
 
 import "memory_message.proto";
 
-
-message Storage{
+message Storage {
   enum Driver {
     UNKNOWN = 0;
     HDD = 1;

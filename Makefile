@@ -5,5 +5,22 @@ gen:
 clean:
 	rm -rf pb/*.go
 
-run:
-	go run main.go
+server:
+	go run cmd/server/main.go --port 8090
+
+client:
+	go run cmd/client/main.go  --address localhost:8090
+
+format:
+	gofmt -s -w .
+
+
+
+
+
+
+
+
+
+
+.PHONY: gen clean server client
