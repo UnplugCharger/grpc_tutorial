@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"io"
 	"log"
 )
 
@@ -16,11 +17,12 @@ const maxImageSize = 1 << 20
 type LaptopServer struct {
 	pb.UnimplementedLaptopServiceServer
 	LaptopStore LaptopStore
-	ImageSore   ImageStore
+	ImageStore  ImageStore
+	RatingStore RatingStore
 }
 
-func NewLaptopServer(laptopStore LaptopStore, imageStore ImageStore) *LaptopServer {
-	return &LaptopServer{pb.UnimplementedLaptopServiceServer{}, laptopStore, imageStore}
+func NewLaptopServer(laptopStore LaptopStore, imageStore ImageStore, ratingStore RatingStore) *LaptopServer {
+	return &LaptopServer{LaptopStore: laptopStore, ImageStore: imageStore, RatingStore: ratingStore}
 
 }
 
@@ -127,6 +129,11 @@ func (server *LaptopServer) UploadImage(stream pb.LaptopService_UploadImageServe
 	for {
 		log.Print("waiting to receive more data")
 		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Print("no more data to receive ")
+			break
+		}
+
 		if err != nil {
 			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 				log.Print("client cancelled streaming")
@@ -149,15 +156,84 @@ func (server *LaptopServer) UploadImage(stream pb.LaptopService_UploadImageServe
 			return status.Errorf(codes.Internal, "cannot write chunk data: %v", err)
 		}
 
-		imageID, err := server.ImageSore.Save(laptopID, imageType, imageData.Bytes())
+	}
+
+	imageID, err := server.ImageStore.Save(laptopID, imageType, imageData.Bytes())
+	if err != nil {
+		return status.Errorf(codes.Internal, "cannot save image to the store: %v", err)
+	}
+
+	res := &pb.UploadImageResponse{
+		ImageId: imageID,
+		Size:    uint32(imageSize),
+	}
+
+	err = stream.SendAndClose(res)
+	if err != nil {
+		return status.Errorf(codes.Unknown, "cannot send response: %v", err)
+	}
+
+	log.Printf("image with id: %s, size: %d saved to the store", imageID, imageSize)
+	return nil
+}
+
+func (server *LaptopServer) RateLaptop(stream pb.LaptopService_RateLaptopServer) error {
+	for {
+		err := contextError(stream.Context())
 		if err != nil {
-			return status.Errorf(codes.Internal, "cannot save image to the store: %v", err)
+			return err
 		}
 
-		res := &pb.UploadImageResponse{
-			ImageId: imageID,
-			Size:    uint32(imageSize),
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Print("no more data")
+			break
 		}
 
+		if err != nil {
+			return status.Errorf(codes.Unknown, "cannot receive stream: %v", err)
+		}
+
+		laptopID := req.GetLaptopId()
+		score := req.GetScore()
+
+		log.Printf("received a rate-laptop request: id = %s, score = %.2f", laptopID, score)
+
+		found, err := server.LaptopStore.Find(laptopID)
+		if err != nil {
+			return status.Errorf(codes.Internal, "cannot find laptop: %v", err)
+		}
+
+		if found == nil {
+			return status.Errorf(codes.NotFound, "laptop %s doesn't exist", laptopID)
+		}
+
+		rating, err := server.RatingStore.Add(laptopID, score)
+		if err != nil {
+			return status.Errorf(codes.Internal, "cannot add rating to the store: %v", err)
+		}
+
+		res := &pb.RateLaptopResponse{
+			LaptopId:     laptopID,
+			RatedCount:   rating.Count,
+			AverageScore: rating.Sum / float64(rating.Count),
+		}
+
+		err = stream.Send(res)
+		if err != nil {
+			return status.Errorf(codes.Internal, "cannot send response: %v", err)
+		}
+	}
+	return nil
+}
+
+func contextError(ctx context.Context) error {
+	switch ctx.Err() {
+	case context.Canceled:
+		return status.Error(codes.Canceled, "request is cancelled")
+	case context.DeadlineExceeded:
+		return status.Error(codes.DeadlineExceeded, "deadline is exceeded")
+	default:
+		return nil
 	}
 }

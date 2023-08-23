@@ -59,7 +59,7 @@ func TestLaptopServer_CreateLaptop(t *testing.T) {
 		tc := testCases[i]
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			server := NewLaptopServer(tc.store, nil)
+			server := NewLaptopServer(tc.store, nil, nil)
 			req := &pb.CreateLaptopRequest{
 				Laptop: tc.laptop,
 			}

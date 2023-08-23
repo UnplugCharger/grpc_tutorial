@@ -1,18 +1,32 @@
 package main
 
 import (
-	"context"
 	"flag"
+	"fmt"
+	"github.com/UnplugCharger/grpc_tutorial/client"
 	"github.com/UnplugCharger/grpc_tutorial/pb"
 	"github.com/UnplugCharger/grpc_tutorial/sample"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
-	"io"
 	"log"
+	"strings"
 	"time"
 )
+
+const (
+	username      = "admin"
+	password      = "secret"
+	tokenDuration = time.Second * 10
+)
+
+func authMethods() map[string]bool {
+	const laptopServicePath = "/grpc_tutorial.LaptopService/"
+	return map[string]bool{
+		laptopServicePath + "CreateLaptop": true,
+		laptopServicePath + "UploadImage":  true,
+		laptopServicePath + "RateLaptop":   true,
+	}
+}
 
 func main() {
 	address := flag.String("address", "", "the server address")
@@ -24,10 +38,37 @@ func main() {
 		log.Fatal("can not dial server: ", err)
 	}
 
-	client := pb.NewLaptopServiceClient(dial)
+	authClient := client.NewAuthClient(dial, username, password)
+	interceptor, err := client.NewAuthInterceptor(authClient, authMethods(), tokenDuration)
+	if err != nil {
+		log.Fatal("can not create auth interceptor: ", err)
+	}
 
-	for i := 0; i < 10; i++ {
-		createRandomLaptop(err, client)
+	dial2, err := grpc.Dial(*address,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(interceptor.Unary()),
+		grpc.WithStreamInterceptor(interceptor.Stream()),
+	)
+	if err != nil {
+		log.Fatal("can not dial server: ", err)
+	}
+
+	laptopClient := client.NewLaptopClient(dial2)
+	testSearchLaptop(laptopClient)
+	testCreateLaptop(laptopClient)
+	testUploadImage(laptopClient)
+	testRateLaptop(laptopClient)
+
+}
+
+func testCreateLaptop(client client.LaptopClient) {
+	laptop := sample.NewLaptop()
+	client.CreateLaptop(laptop)
+}
+
+func testSearchLaptop(client client.LaptopClient) {
+	for i := 0; i < 3; i++ {
+		client.CreateLaptop(sample.NewLaptop())
 
 	}
 
@@ -38,58 +79,45 @@ func main() {
 		MinMemory:   &pb.Memory{Value: 8, Unit: pb.Memory_GB},
 	}
 
-	searchLaptop(client, filter)
+	client.SearchLaptop(filter)
 }
 
-func createRandomLaptop(err error, client pb.LaptopServiceClient) {
-	laptop := sample.NewLaptop()
-	laptop.Id = ""
-	req := &pb.CreateLaptopRequest{
+func testRateLaptop(client client.LaptopClient) {
+	n := 5
 
-		Laptop: laptop,
+	laptopIDs := make([]string, n)
+
+	for i := 0; i < n; i++ {
+		laptop := sample.NewLaptop()
+		client.CreateLaptop(laptop)
+		laptopIDs[i] = laptop.GetId()
 	}
 
-	// set time out for the request
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	res, err := client.CreateLaptop(ctx, req)
-	if err != nil {
-		st, ok := status.FromError(err)
-		if ok && st.Code() == codes.AlreadyExists {
-			log.Printf("laptop already exists")
-
-		} else {
-			log.Fatal("can not create laptop: ", err)
-		}
-		return
-	}
-
-	log.Printf("created laptop with id: %s", res.Id)
-}
-
-func searchLaptop(laptopClient pb.LaptopServiceClient, filter *pb.Filter) {
-	log.Print("searching for laptop..", filter)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req := &pb.SearchLaptopRequest{Filter: filter}
-
-	stream, err := laptopClient.SearchLaptop(ctx, req)
-	if err != nil {
-		log.Fatal("can not search laptop: ", err)
-	}
-
+	scores := make([]float64, n)
 	for {
-		res, err := stream.Recv()
-		if err == io.EOF {
-			return
+		fmt.Print("rate laptop (y/n)?")
+		var answer string
+		fmt.Scan(&answer)
+
+		if strings.ToLower(answer) != "y" {
+			break
 		}
 
+		for i := 0; i < n; i++ {
+			scores[i] = sample.RandomLaptopScore()
+		}
+
+		err := client.RateLaptop(laptopIDs, scores)
 		if err != nil {
-			log.Fatal("can not receive response: ", err)
+			log.Fatal("can not rate laptop: ", err)
 		}
 
-		log.Print("received: ", res.GetLaptop())
 	}
+}
+
+func testUploadImage(client client.LaptopClient) {
+	laptop := sample.NewLaptop()
+	client.CreateLaptop(laptop)
+	client.UploadImage(laptop.GetId(), "tmp/laptop.jpg")
+
 }

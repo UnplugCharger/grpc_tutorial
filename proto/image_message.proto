@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package grpc_tutorial;
+
+option go_package = "pb/";
+
+message ImageInfo {
+  string laptop_id = 1;
+  string image_type = 2;
+}
+
+message UploadImageRequest {
+  oneof data {
+    ImageInfo image_info = 1;
+    bytes chunk_data = 2;
+  }
+}
+
+message UploadImageResponse {
+  string image_id = 1;
+  uint32 size = 2;
+}

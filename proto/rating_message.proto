@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package grpc_tutorial;
+
+option go_package = "pb/";
+
+
+
+
+message RateLaptopRequest {
+  string laptop_id = 1;
+  double score = 2;
+}
+
+message RateLaptopResponse {
+  string laptop_id = 1;
+  double average_score = 2;
+  uint32 rated_count = 3;
+}
