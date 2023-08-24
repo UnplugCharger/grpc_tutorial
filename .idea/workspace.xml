@@ -6,6 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="04f54fc1-a161-48e9-8aba-e3b8c6694322" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/ca-cert.pem" beforeDir="false" afterPath="$PROJECT_DIR$/cert/ca-cert.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/ca-key.pem" beforeDir="false" afterPath="$PROJECT_DIR$/cert/ca-key.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/client-ext.cnf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/client-key.pem" beforeDir="false" afterPath="$PROJECT_DIR$/cert/client-key.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/client-req.pem" beforeDir="false" afterPath="$PROJECT_DIR$/cert/client-req.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/gen.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cert/gen.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/server-key.pem" beforeDir="false" afterPath="$PROJECT_DIR$/cert/server-key.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cert/server-req.pem" beforeDir="false" afterPath="$PROJECT_DIR$/cert/server-req.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/client/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/client/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,11 +72,46 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cert" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="TestClientSearchLaptop in github.com/UnplugCharger/grpc_tutorial/service" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="grpc_tutorial" />
+      <working_directory value="$PROJECT_DIR$/service" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/UnplugCharger/grpc_tutorial/service" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestClientSearchLaptop\E$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.TestClientSearchLaptop in github.com/UnplugCharger/grpc_tutorial/service" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/service/laptop_client_test.go</url>
+          <line>44</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

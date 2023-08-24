@@ -1,7 +1,9 @@
+#!/bin/bash
+
 rm *.pem
 
 # 1. Generate CA's private key and self-signed certificate
-openssl req -x509 -newkey rsa:4096 -days 365 -nodes -keyout ca-key.pem -out ca-cert.pem -subj "/C=FR/ST=Occitanie/L=Toulouse/O=Tech School/OU=Education/CN=*.techschool.guru/emailAddress=techschool.guru@gmail.com"
+openssl req -x509 -newkey rsa:4096 -days 365 -nodes -keyout ca-key.pem -out ca-cert.pem -subj "/C=KE/ST=NAIROBI/L=NAIROBI/O=MAHINYA/OU=BACKEND/CN=BYRON/emailAddress=isaacbyron@gmail.com"
 
 echo "CA's self-signed certificate"
 openssl x509 -in ca-cert.pem -noout -text
@@ -23,3 +25,4 @@ openssl x509 -req -in client-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem 
 
 echo "Client's signed certificate"
 openssl x509 -in client-cert.pem -noout -text
+

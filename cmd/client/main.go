@@ -1,14 +1,17 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
 	"github.com/UnplugCharger/grpc_tutorial/client"
 	"github.com/UnplugCharger/grpc_tutorial/pb"
 	"github.com/UnplugCharger/grpc_tutorial/sample"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -28,12 +31,41 @@ func authMethods() map[string]bool {
 	}
 }
 
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	permServerCA, err := os.ReadFile("cert/ca-cert.pem")
+
+	if err != nil {
+		return nil, fmt.Errorf("cannot load server cert: %w", err)
+	}
+	certPool := x509.NewCertPool()
+	if !certPool.AppendCertsFromPEM(permServerCA) {
+		return nil, fmt.Errorf("cannot add server cert to cert pool: %w", err)
+	}
+
+	ClientCert, err := tls.LoadX509KeyPair("cert/client-cert.pem", "cert/client-key.pem")
+	if err != nil {
+		return nil, fmt.Errorf("cannot load server cert: %w", err)
+	}
+
+	conf := &tls.Config{
+		Certificates: []tls.Certificate{ClientCert},
+		RootCAs:      certPool,
+	}
+
+	return credentials.NewTLS(conf), nil
+}
+
 func main() {
 	address := flag.String("address", "", "the server address")
 	flag.Parse()
 	log.Printf("dialing server on address  %s", *address)
 
-	dial, err := grpc.Dial(*address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tlsCreds, err := loadTLSCredentials()
+	if err != nil {
+		log.Fatal("cannot load TLS credentials: ", err)
+	}
+
+	dial, err := grpc.Dial(*address, grpc.WithTransportCredentials(tlsCreds))
 	if err != nil {
 		log.Fatal("can not dial server: ", err)
 	}
@@ -45,7 +77,7 @@ func main() {
 	}
 
 	dial2, err := grpc.Dial(*address,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(tlsCreds),
 		grpc.WithUnaryInterceptor(interceptor.Unary()),
 		grpc.WithStreamInterceptor(interceptor.Stream()),
 	)

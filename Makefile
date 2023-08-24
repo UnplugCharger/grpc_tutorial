@@ -9,11 +9,13 @@ server:
 	go run cmd/server/main.go --port 8090
 
 client:
-	go run cmd/client/main.go  --address localhost:8090
+	go run cmd/client/main.go  --address 0.0.0.0:8090
 
 format:
 	gofmt -s -w .
 
+cert:
+	cd cert && ./gen.sh && cd ..
 
 
 
@@ -23,4 +25,5 @@ format:
 
 
 
-.PHONY: gen clean server client
+
+.PHONY: gen clean server client format cert
