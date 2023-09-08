@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package grpc_tutorial;
+
+option go_package = "pb/";
+
+message Memory {
+  enum Unit {
+    UNKNOWN = 0;
+    BYTES = 1;
+    KB = 2;
+    MB = 3;
+    GB = 4;
+    TB = 5;
+    PB = 6;
+  }
+  int64 value = 1;
+  Unit unit = 2;
+}
